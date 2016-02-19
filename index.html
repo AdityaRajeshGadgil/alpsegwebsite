@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>US Map of Nielsen Media Markets</title>
+<style>
+.background {
+  fill: none;
+  pointer-events: all;
+}
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5;
+  stroke-opacity: .7;
+}
+
+#dma-borders {
+  fill: none;
+  stroke: black;
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+#textbox {
+  position: absolute;
+  top: 400px;
+  left: 50px;
+  width: 275px;
+  height: 100px;
+}
+
+#textbox text p {
+  font-family: Arial, Helvetica;
+  font-size: .8em;
+  margin: 0;
+}
+
+</style>
+</head>
+<body>
+<div id="textbox"></div>
+<div style="float:right"><img src="seglabels.png"/><div>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+var width = 960,
+    height = 500;
+// sets the type of view
+var projection = d3.geo.albersUsa()
+    .scale(1070) // size, bigger is bigger
+    .translate([width / 2, height / 2]);
+
+//creates a new geographic path generator
+var path = d3.geo.path().projection(projection);
+var xScale = d3.scale.linear()
+    .domain([0, 7])
+    .range([0, 500]);
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom")
+    .tickSize(13)
+    .tickFormat(d3.format("0.0f"));
+
+
+//set svg window
+var svg = d3.select("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+
+var graticule = d3.geo.graticule()
+    .extent([[-98 - 45, 38 - 45], [-98 + 45, 38 + 45]])
+    .step([5, 5]);
+
+// adding a blank background
+svg.append("rect")
+    .datum(graticule)
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height)
+   // .on("click", clicked);
+
+//declare g as our appended svg
+var g = svg.append("g");
+
+var defaultFill = "#aaa";
+
+d3.json("nielsentopo.json", function(error, dma) {
+
+  var nielsen = dma.objects.nielsen_dma.geometries;
+
+  // adding data from tv json (number of TVs, etc) to map json
+  d3.json("tv.json", function(error, tv){
+    for (var i = 0; i < nielsen.length; i++){
+      var dma_code = nielsen[i].id;
+      for (key in tv[dma_code]){
+        nielsen[i].properties[key] = tv[dma_code][key];
+      }
+    }
+  dma.objects.nielsen_dma.geometries = nielsen;
+
+  g.append("g")
+    .attr("id", "dmas")
+    .selectAll("path")
+    .data(topojson.feature(dma, dma.objects.nielsen_dma).features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    //.on("click", clicked)
+    
+    .on("mouseover", function(d){
+      d3.select(this)
+      .attr("fill", "mistyrose");
+
+      var prop = d.properties;
+	  
+	  if(prop["DMA Code"]==512 || prop["DMA Code"]==515)	{
+	  d3.select(this)
+      .attr("fill", "red");
+	  }
+	  
+	  if(prop["DMA Code"]==525 || prop["DMA Code"]==527 || prop["DMA Code"]==541 || prop["DMA Code"]==553 || prop["DMA Code"]==554 || prop["DMA Code"]==575 || prop["DMA Code"]==618 || prop["DMA Code"]==623 || prop["DMA Code"]==625 || prop["DMA Code"]==650 || prop["DMA Code"]==658 || prop["DMA Code"]==662 || prop["DMA Code"]==722 || prop["DMA Code"]==734 || prop["DMA Code"]==740 || prop["DMA Code"]==751 || prop["DMA Code"]==752 || prop["DMA Code"]==755 || prop["DMA Code"]==756 || prop["DMA Code"]==757 || prop["DMA Code"]==758 || prop["DMA Code"]==759 || prop["DMA Code"]==760 || prop["DMA Code"]==767 || prop["DMA Code"]==790 || prop["DMA Code"]==798 || prop["DMA Code"]==820)	{
+	  d3.select(this)
+      .attr("fill", "orange");
+	  }
+	  
+	  if(prop["DMA Code"]==539 || prop["DMA Code"]==561 || prop["DMA Code"]==804)	{
+	  d3.select(this)
+      .attr("fill", "yellow");
+	  }
+	  
+	  if(prop["DMA Code"]==511 || prop["DMA Code"]==564 || prop["DMA Code"]==673 || prop["DMA Code"]==749)	{
+	  d3.select(this)
+      .attr("fill", "green");
+	  }
+	  
+	  if(prop["DMA Code"]==555 || prop["DMA Code"]==567 || prop["DMA Code"]==635 || prop["DMA Code"]==636 || prop["DMA Code"]==652 || prop["DMA Code"]==669 || prop["DMA Code"]==811 || prop["DMA Code"]==839)	{
+	  d3.select(this)
+      .attr("fill", "blue");
+	  }
+	  
+	  if(prop["DMA Code"]==516 || prop["DMA Code"]==549 || prop["DMA Code"]==573 || prop["DMA Code"]==605 || prop["DMA Code"]==626 || prop["DMA Code"]==651 || prop["DMA Code"]==676 || prop["DMA Code"]==753 || prop["DMA Code"]==762 || prop["DMA Code"]==765 || prop["DMA Code"]==810 || prop["DMA Code"]==819)	{
+	  d3.select(this)
+      .attr("fill", "purple");
+	  }
+	  
+	  if(prop["DMA Code"]==518 || prop["DMA Code"]==519 || prop["DMA Code"]==520 || prop["DMA Code"]==529 || prop["DMA Code"]==540 || prop["DMA Code"]==547 || prop["DMA Code"]==552 || prop["DMA Code"]==560 || prop["DMA Code"]==600 || prop["DMA Code"]==609 || prop["DMA Code"]==616 || prop["DMA Code"]==619 || prop["DMA Code"]==624 || prop["DMA Code"]==630 || prop["DMA Code"]==640 || prop["DMA Code"]==648 || prop["DMA Code"]==659 || prop["DMA Code"]==679 || prop["DMA Code"]==705 || prop["DMA Code"]==718 || prop["DMA Code"]==736 || prop["DMA Code"]==747 || prop["DMA Code"]==754 || prop["DMA Code"]==766 || prop["DMA Code"]==807 || prop["DMA Code"]==813 || prop["DMA Code"]==862 || prop["DMA Code"]==868 || prop["DMA Code"]==881)	{
+	  d3.select(this)
+      .attr("fill", "darkslategrey");
+	  }
+	  
+	  if(prop["DMA Code"]==506 || prop["DMA Code"]==514 || prop["DMA Code"]==538 || prop["DMA Code"]==563 || prop["DMA Code"]==800 || prop["DMA Code"]==803)	{
+	  d3.select(this)
+      .attr("fill", "indigo");
+	  }
+	  
+	  if(prop["DMA Code"]==523 || prop["DMA Code"]==531 || prop["DMA Code"]==537 || prop["DMA Code"]==613 || prop["DMA Code"]==627 || prop["DMA Code"]==641 || prop["DMA Code"]==678 || prop["DMA Code"]==687 || prop["DMA Code"]==724 || prop["DMA Code"]==725 || prop["DMA Code"]==764 || prop["DMA Code"]==770)	{
+	  d3.select(this)
+      .attr("fill", "lightskyblue");
+	  }
+	  
+	  if(prop["DMA Code"]==577 || prop["DMA Code"]==633 || prop["DMA Code"]==634 || prop["DMA Code"]==661 || prop["DMA Code"]==771 || prop["DMA Code"]==773 || prop["DMA Code"]==789 || prop["DMA Code"]==821)	{
+	  d3.select(this)
+      .attr("fill", "maroon");
+	  }
+
+      var string = "<p><strong>Market Area Name</strong>: " + prop.dma1 + "</p>";
+      string += "<p><strong>Homes with TVs</strong>: " + numberWithCommas(prop["TV Homes"]) + "</p>";
+      string += "<p><strong>% with Cable</strong>: " + prop.cableperc + "%</p>";
+      string += "<p><strong>Nielsen Rank</strong>: " + prop.Rank + "</p>";
+
+      d3.select("#textbox")
+        .html("")
+        .append("text")
+        .html(string)
+    })
+
+    .on("mouseout", function(d){
+      d3.select(this)
+      //.attr("fill", defaultFill)
+    })
+    
+    .attr("opacity", 0.9)
+    .attr("fill", defaultFill);
+
+  // add dma borders
+  g.append("path", ".graticule")
+      .datum(topojson.mesh(dma, dma.objects.nielsen_dma, function(a, b) { 
+        return true;
+      }))
+      .attr("id", "dma-borders")
+      .attr("d", path);
+  })
+})
+
+// via http://stackoverflow.com/a/2901298
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+</script>
+</body>
+</html>
